@@ -14,7 +14,7 @@
 	// Duplicate first frame at end for seamless looping
 	const iframes = [...baseIframes, baseIframes[0]];
 
-	const rotationInterval = 3000; // 30 seconds
+	const rotationInterval = 30000; // 30 seconds
 
 	onMount(() => {
 		const clockInterval = setInterval(() => {
