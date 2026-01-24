@@ -2,13 +2,52 @@
 	import { onMount } from 'svelte';
 
 	let time = new Date();
+	let currentIframeIndex = 0;
+	let isAnimating = true;
+
+	const baseIframes = [
+		'https://hackclub.com',
+        'https://campfire.hackclub.com/',
+        'https://time.is/'
+	];
+
+	// Duplicate first frame at end for seamless looping
+	const iframes = [...baseIframes, baseIframes[0]];
+
+	const rotationInterval = 3000; // 30 seconds
 
 	onMount(() => {
-		const interval = setInterval(() => {
+		const clockInterval = setInterval(() => {
 			time = new Date();
 		}, 100);
 
-		return () => clearInterval(interval);
+		let iframeTimer;
+		if (baseIframes.length > 0) {
+			iframeTimer = setInterval(() => {
+				if (currentIframeIndex === iframes.length - 2) {
+					// Last real frame - animate to duplicate, then reset
+					currentIframeIndex += 1;
+					
+					// Wait for animation to complete, then reset instantly
+					setTimeout(() => {
+						isAnimating = false;
+						currentIframeIndex = 0;
+						
+						// Re-enable animation for next cycle
+						setTimeout(() => {
+							isAnimating = true;
+						}, 10);
+					}, 500); // Match animation duration
+				} else {
+					currentIframeIndex += 1;
+				}
+			}, rotationInterval);
+		}
+
+		return () => {
+			clearInterval(clockInterval);
+			if (iframeTimer) clearInterval(iframeTimer);
+		};
 	});
 
 	$: hours = String(time.getHours() % 12 || 12).padStart(2, '0');
@@ -18,7 +57,19 @@
 </script>
 
 <div class="flex flex-col w-[1280px] h-[800px] bg-white">
-	<div class="flex-1 bg-[#130101]" />
+	<div class="flex-1 bg-[#130101] relative overflow-hidden">
+		{#each iframes as url, idx}
+			<iframe 
+				src={url}
+				scrolling="no"
+				class="absolute inset-0 w-full h-full border-none"
+				class:transition-transform={isAnimating}
+				class:duration-500={isAnimating}
+				style="transform: translateX({(idx - currentIframeIndex) * 100}%)"
+				title="Gallery"
+			/>
+		{/each}
+	</div>
 	<div class="flex items-center justify-between bg-[#270202] px-[26px] py-[26px] h-[100px]">
 		<div class="flex items-center font-semibold text-white font-['Mona_Sans_VF'] tracking-tight">
 			<span class="text-[64px] leading-none">{hours}:{minutes}</span>
