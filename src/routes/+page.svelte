@@ -6,13 +6,6 @@
 
 	let time = $state(new Date());
 
-	const project = {
-		title: 'Engine of Dread',
-		description: `It is a First Person Horror Game. This was my First First Person Game and I created it for Siege First at the time of siege of Siege I was very new to Godot and I created a Game With a horror witch(which does not even rotate the player) and at that time the game was very Bad But Then Decided to remake it.`,
-		author: '@rykugod',
-		image: '/project-screenshot.png'
-	};
-
 	onMount(() => {
 		const clockInterval = setInterval(() => {
 			time = new Date();
@@ -49,7 +42,7 @@
 					<Departures />
 				</div>
 				<div class="panel project">
-					<ProjectShowcase {project} />
+					<ProjectShowcase />
 				</div>
 			</div>
 			<div class="far-right-column">

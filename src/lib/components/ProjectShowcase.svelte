@@ -1,31 +1,71 @@
 <script lang="ts">
-	interface Project {
-		title: string;
-		description: string;
-		author: string;
-		image: string;
+	import { onMount } from 'svelte';
+
+	interface AirtableProject {
+		'First Name': string;
+		'Code URL': string;
+		'Screenshot': string;
+		'GitHub Username': string;
+		'Description': string;
+		'YSWS–Name': string;
+		'Approved At': string;
+		'Created': string;
+		'Title': string;
 	}
 
-	let { project }: { project: Project } = $props();
+	let project: AirtableProject | null = $state(null);
+	let loading = $state(true);
+	let error = $state<string | null>(null);
+
+	async function fetchProject() {
+		try {
+			loading = true;
+			error = null;
+			const res = await fetch('/api/project');
+			if (!res.ok) throw new Error('Failed to fetch project');
+			project = await res.json();
+		} catch (e) {
+			error = e instanceof Error ? e.message : 'Failed to fetch project';
+		} finally {
+			loading = false;
+		}
+	}
+
+	onMount(() => {
+		fetchProject();
+		const interval = setInterval(fetchProject, 60 * 1000);
+		return () => clearInterval(interval);
+	});
 
 	function truncateDescription(text: string, maxLength: number = 120): string {
+		if (!text) return '';
 		if (text.length <= maxLength) return text;
 		return text.slice(0, maxLength).trim() + '...';
 	}
 </script>
 
 <div class="project-panel">
-	<div class="screenshot">
-		{#if project.image}
-			<img src={project.image} alt={project.title} />
-		{/if}
-	</div>
-	<div class="details">
-		<p class="label">RECENT PROJECT</p>
-		<h2 class="title">{project.title}</h2>
-		<p class="description">{truncateDescription(project.description)}</p>
-		<p class="author">Created by {project.author}</p>
-	</div>
+	{#if loading && !project}
+		<div class="loading">
+			<p>Loading project...</p>
+		</div>
+	{:else if error && !project}
+		<div class="error">
+			<p>{error}</p>
+		</div>
+	{:else if project}
+		<div class="screenshot">
+			{#if project.Screenshot}
+				<img src={project.Screenshot} alt={project['YSWS–Name']} />
+			{/if}
+		</div>
+		<div class="details">
+			<p class="label">RECENT PROJECT</p>
+			<h2 class="title">{project.Title}</h2>
+			<p class="description">{truncateDescription(project.Description)}</p>
+			<p class="author">Created by @{project['GitHub Username']} for {project['YSWS–Name']}</p>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -60,10 +100,22 @@
 		color: #eae9e6;
 	}
 
+	.loading,
+	.error {
+		padding: 24px;
+		font-family: 'Space Mono', monospace;
+		font-size: 14px;
+	}
+
+	.error {
+		color: #ff6b6b;
+	}
+
 	.screenshot {
 		width: 100%;
 		height: 255px;
 		overflow: hidden;
+		background-color: #1a1818;
 	}
 
 	.screenshot img {
