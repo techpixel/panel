@@ -22,7 +22,7 @@
 				{selectedProject.description}
 			</p>
 			<p class="font-['Mona_Sans_VF'] font-extrabold text-[16px] leading-normal text-white">
-				Created by {selectedProject.author}
+				Created by {sele ctedProject.author}
 			</p>
 		</div>
 	</div>

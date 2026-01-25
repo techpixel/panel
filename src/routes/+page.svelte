@@ -1,8 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Weather from '$lib/components/Weather.svelte';
+	import Departures from '$lib/components/Departures.svelte';
+	import ProjectShowcase from '$lib/components/ProjectShowcase.svelte';
 
 	let time = $state(new Date());
+
+	const project = {
+		title: 'Engine of Dread',
+		description: `It is a First Person Horror Game. This was my First First Person Game and I created it for Siege First at the time of siege of Siege I was very new to Godot and I created a Game With a horror witch(which does not even rotate the player) and at that time the game was very Bad But Then Decided to remake it.`,
+		author: '@rykugod',
+		image: '/project-screenshot.png'
+	};
 
 	onMount(() => {
 		const clockInterval = setInterval(() => {
@@ -32,7 +41,21 @@
 			</div>
 		</div>
 		<div class="content">
-			<Weather />
+			<div class="panel weather">
+				<Weather />
+			</div>
+			<div class="right-column">
+				<div class="panel departures">
+					<Departures />
+				</div>
+				<div class="panel project">
+					<ProjectShowcase {project} />
+				</div>
+			</div>
+			<div class="far-right-column">
+				<div class="panel placeholder-top"></div>
+				<div class="panel placeholder-bottom"></div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -100,7 +123,7 @@
 		font-family: 'Phantom Sans', sans-serif;
 		font-weight: 600;
 		font-size: 24px;
-		color: #EAE9E6;
+		color: #eae9e6;
 		text-align: right;
 		height: 40px;
 		display: flex;
@@ -110,7 +133,50 @@
 	.content {
 		flex: 1;
 		width: 100%;
-		position: relative;
+		display: flex;
+		gap: 12px;
 		overflow: hidden;
+	}
+
+	.panel {
+		border-radius: 0;
+		overflow: hidden;
+	}
+
+	.weather {
+		width: 405px;
+		height: 100%;
+	}
+
+	.right-column {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		width: 464px;
+	}
+
+	.departures {
+		height: 213px;
+	}
+
+	.project {
+		flex: 1;
+	}
+
+	.far-right-column {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		flex: 1;
+	}
+
+	.placeholder-top {
+		height: 213px;
+		background-color: #211f1f;
+	}
+
+	.placeholder-bottom {
+		flex: 1;
+		background-color: #211f1f;
 	}
 </style>
