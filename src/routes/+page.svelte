@@ -3,6 +3,7 @@
 	import Weather from '$lib/components/Weather.svelte';
 	import Departures from '$lib/components/Departures.svelte';
 	import ProjectShowcase from '$lib/components/ProjectShowcase.svelte';
+	import Ad from '$lib/components/Ad.svelte';
 
 	let time = $state(new Date());
 
@@ -46,7 +47,9 @@
 				</div>
 			</div>
 			<div class="far-right-column">
-				<div class="panel placeholder-top"></div>
+				<div class="panel campfire">
+					<Ad />
+				</div>
 				<div class="panel placeholder-bottom"></div>
 			</div>
 		</div>
@@ -163,9 +166,8 @@
 		flex: 1;
 	}
 
-	.placeholder-top {
+	.campfire {
 		height: 213px;
-		background-color: #211f1f;
 	}
 
 	.placeholder-bottom {
