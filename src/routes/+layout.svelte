@@ -37,10 +37,10 @@
 		if (Math.abs(diff) > threshold) {
 			if (diff > 0) {
 				// Swiped left, go to next page
-				pagination.currentPage = (pagination.currentPage + 1) % pagination.totalPages;
+				pagination.next();
 			} else {
 				// Swiped right, go to previous page
-				pagination.currentPage = (pagination.currentPage - 1 + pagination.totalPages) % pagination.totalPages;
+				pagination.prev();
 			}
 		}
 	}
@@ -52,7 +52,7 @@
 		const dateInterval = setInterval(updateDateTime, 1000);
 		
 		const pageInterval = setInterval(() => {
-			pagination.currentPage = (pagination.currentPage + 1) % pagination.totalPages;
+			pagination.next();
 		}, PAGE_INTERVAL_MS);
 		
 		return () => {
@@ -87,7 +87,7 @@
 		<div class="flex gap-2">
 			{#each Array(pagination.totalPages) as _, i}
 				<button
-					onclick={() => (pagination.currentPage = i)}
+					onclick={() => pagination.goto(i)}
 					class="w-3 h-3 rounded-full transition-opacity duration-200 cursor-pointer bg-[#eae9e6]"
 					class:opacity-50={pagination.currentPage !== i}
 					aria-label="Page {i + 1}"
