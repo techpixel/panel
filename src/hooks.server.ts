@@ -1,10 +1,15 @@
 import type { Handle } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 
+const ENABLE_BASIC_AUTH = env.ENABLE_BASIC_AUTH === 'true';
 const BASIC_AUTH_USER = env.BASIC_AUTH_USER || 'admin';
 const BASIC_AUTH_PASSWORD = env.BASIC_AUTH_PASSWORD || 'password';
 
 export const handle: Handle = async ({ event, resolve }) => {
+	if (!ENABLE_BASIC_AUTH) {
+		return resolve(event);
+	}
+
 	const authHeader = event.request.headers.get('authorization');
 
 	if (authHeader) {
