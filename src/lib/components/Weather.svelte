@@ -1,15 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import {
-		Cloud,
-		CloudRain,
-		Sun,
-		CloudSnow,
-		Wind,
-		Droplets,
-		Eye,
-		Gauge
-	} from 'lucide-svelte';
+	import { CloudSnow, Cloud, Sun, CloudRain, Wind } from 'lucide-svelte';
 
 	interface WeatherAlert {
 		event: string;
@@ -21,7 +12,6 @@
 	interface HourlyForecast {
 		time: string;
 		temp: number;
-		icon: string;
 		shortForecast: string;
 		iconName: string;
 	}
@@ -33,9 +23,7 @@
 		windSpeed: string;
 		windDirection: string;
 		lastUpdated: string;
-		icon: string;
 		iconName: string;
-		shortForecast: string;
 		alerts: WeatherAlert[];
 		hourly: HourlyForecast[];
 	}
@@ -44,16 +32,16 @@
 		if (!iconUrl) return 'cloud';
 
 		const descriptions = {
-			'sunny': 'sun',
-			'clear': 'sun',
-			'cloud': 'cloud',
-			'cloudy': 'cloud',
-			'rain': 'cloud-rain',
-			'snow': 'cloud-snow',
-			'sleet': 'cloud-snow',
-			'thunder': 'cloud-rain',
-			'blizzard': 'cloud-snow',
-			'wind': 'wind'
+			sunny: 'sun',
+			clear: 'sun',
+			cloud: 'cloud',
+			cloudy: 'cloud',
+			rain: 'cloud-rain',
+			snow: 'cloud-snow',
+			sleet: 'cloud-snow',
+			thunder: 'cloud-rain',
+			blizzard: 'cloud-snow',
+			wind: 'wind'
 		};
 
 		const lowerUrl = iconUrl.toLowerCase();
@@ -67,11 +55,11 @@
 	}
 
 	const iconComponents: Record<string, any> = {
-		'sun': Sun,
-		'cloud': Cloud,
+		sun: Sun,
+		cloud: Cloud,
 		'cloud-rain': CloudRain,
 		'cloud-snow': CloudSnow,
-		'wind': Wind
+		wind: Wind
 	};
 
 	let weather: WeatherData | null = $state(null);
@@ -98,7 +86,6 @@
 
 			if (!forecastRes.ok || !hourlyRes.ok) throw new Error('Failed to fetch forecast');
 
-			const forecastData = await forecastRes.json();
 			const hourlyData = await hourlyRes.json();
 			const alertsData = alertsRes.ok ? await alertsRes.json() : { features: [] };
 
@@ -106,19 +93,19 @@
 			const tempF = current.temperature;
 			const tempC = Math.round((tempF - 32) * (5 / 9));
 
-			const alerts: WeatherAlert[] = alertsData.features?.map((f: any) => ({
-				event: f.properties.event,
-				headline: f.properties.headline,
-				start: f.properties.effective,
-				end: f.properties.expires
-			})) || [];
+			const alerts: WeatherAlert[] =
+				alertsData.features?.map((f: any) => ({
+					event: f.properties.event,
+					headline: f.properties.headline,
+					start: f.properties.effective,
+					end: f.properties.expires
+				})) || [];
 
 			const hourly: HourlyForecast[] = hourlyData.properties.periods.slice(0, 6).map((p: any) => {
 				const date = new Date(p.startTime);
 				return {
 					time: date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
 					temp: p.temperature,
-					icon: p.icon,
 					shortForecast: p.shortForecast,
 					iconName: getIconName(p.icon)
 				};
@@ -136,9 +123,7 @@
 					hour12: true,
 					timeZoneName: 'short'
 				}),
-				icon: current.icon,
 				iconName: getIconName(current.icon),
-				shortForecast: current.shortForecast,
 				alerts,
 				hourly
 			};
@@ -165,219 +150,83 @@
 			timeZoneName: 'short'
 		});
 	}
+
+	function formatWeatherIcon(iconName: string): string {
+		const iconLabels: Record<string, string> = {
+			sun: 'SUNNY',
+			cloud: 'CLOUDY',
+			'cloud-rain': 'RAIN',
+			'cloud-snow': 'SNOW',
+			wind: 'WINDY'
+		};
+		return iconLabels[iconName] || 'CLOUDY';
+	}
 </script>
 
-<div class="weather-panel">
+<div class="flex w-full h-full gap-3 text-[#eae9e6]">
 	{#if loading && !weather}
-		<div class="loading">Loading weather...</div>
+		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col">
+			<div class="text-sm opacity-70">Loading weather...</div>
+		</div>
+		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col">
+			<div class="text-sm opacity-70">Loading...</div>
+		</div>
 	{:else if error && !weather}
-		<div class="error">{error}</div>
+		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col">
+			<div class="text-red-500">{error}</div>
+		</div>
+		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col"></div>
 	{:else if weather}
-		<div class="weather-header">WEATHER</div>
-		<div class="weather-main">
-			<div class="temperature">
-				<span class="temp-value">{weather.temp}°F</span>
-				<span class="temp-celsius">({weather.tempC}°C)</span>
+		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col relative">
+			<div class="text-4xl font-medium mb-6">WEATHER</div>
+			<div class="flex items-center gap-4 mb-12">
+				<div class="flex-shrink-0">
+					{#if weather.iconName === 'sun'}
+						<Sun size={90} strokeWidth={1.5} />
+					{:else if weather.iconName === 'cloud-rain'}
+						<CloudRain size={90} strokeWidth={1.5} />
+					{:else if weather.iconName === 'cloud-snow'}
+						<CloudSnow size={90} strokeWidth={1.5} />
+					{:else if weather.iconName === 'wind'}
+						<Wind size={90} strokeWidth={1.5} />
+					{:else}
+						<Cloud size={90} strokeWidth={1.5} />
+					{/if}
+				</div>
+				<div class="flex items-baseline">
+					<span class="text-8xl font-bold leading-none">{weather.temp}°F</span>
+					<span class="text-6xl font-bold leading-none">({weather.tempC}°C)</span>
+				</div>
 			</div>
-			<div class="weather-icon">
-				<svelte:component this={iconComponents[weather.iconName]} size={64} />
+			<div class="text-4xl leading-relaxed">
+				{#if weather.humidity !== null}
+					<p class="m-0"><span class="font-bold">Humidity</span> {weather.humidity}%</p>
+				{/if}
+				<p class="m-0"><span class="font-bold">Wind Speed</span> {weather.windDirection} {weather.windSpeed}</p>
+				<p class="m-0"><span class="font-bold">Last updated</span> {weather.lastUpdated}</p>
 			</div>
-		</div>
-		<div class="weather-details">
-			{#if weather.humidity !== null}
-				<p><span class="label">Humidity</span> {weather.humidity}%</p>
+			{#if weather.alerts.length > 0}
+				<div class="absolute bottom-9 left-9 right-9 bg-red-600/60 p-6 overflow-hidden">
+					<div class="font-bold text-2xl mb-1">{weather.alerts[0].event.toUpperCase()}</div>
+					<div class="text-2xl font-medium">
+						{weather.alerts[0].event} in effect from {formatAlertTime(weather.alerts[0].start)} until {formatAlertTime(
+							weather.alerts[0].end
+						)}
+					</div>
+				</div>
 			{/if}
-			<p><span class="label">Wind Speed</span> {weather.windDirection} {weather.windSpeed}</p>
-			<p><span class="label">Last updated</span> {weather.lastUpdated}</p>
 		</div>
-		<div class="divider"></div>
-		<div class="hourly-section">
-			<div class="hourly-header">HOURLY</div>
-			<div class="hourly-table">
-				{#each weather.hourly as hour, i}
-					<div class="hourly-row" class:hourly-row-alt={i % 2 === 0}>
-						<span class="hourly-time">{hour.time.toUpperCase()}</span>
-						<span class="hourly-info">{hour.temp}° • {hour.shortForecast.toUpperCase()}</span>
+		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col">
+			<div class="text-4xl font-medium mb-6">HOURLY</div>
+			<div class="flex flex-col">
+				{#each weather.hourly as hour, i (hour.time)}
+					<div class="flex items-center justify-between px-6 py-4 text-5xl overflow-hidden {i % 2 === 0 ? 'bg-white/5' : ''}">
+						<span class="font-bold">{hour.time.toUpperCase().replace(' ', '')}</span>
+						<span class="text-right font-medium">{hour.temp}° • {formatWeatherIcon(hour.iconName)}</span>
 					</div>
 				{/each}
 			</div>
 		</div>
-		{#if weather.alerts.length > 0}
-			<div class="alert">
-				<div class="alert-icon">
-					<svg width="50" height="44" viewBox="0 0 60 53" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M30 5L55 48H5L30 5Z" stroke="currentColor" stroke-width="3"/>
-						<path d="M30 20V32" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-						<circle cx="30" cy="40" r="2.5" fill="currentColor"/>
-					</svg>
-				</div>
-				<div class="alert-content">
-					<div class="alert-title">{weather.alerts[0].event.toUpperCase()}</div>
-					<div class="alert-message">
-						{weather.alerts[0].event} in effect from {formatAlertTime(weather.alerts[0].start)} until {formatAlertTime(weather.alerts[0].end)}
-					</div>
-				</div>
-			</div>
-		{/if}
 	{/if}
 </div>
 
-<style>
-	@font-face {
-		font-family: 'Space Mono';
-		src: url('https://fonts.gstatic.com/s/spacemono/v12/i7dPIFZifjKcF5UAWdDRYEF8RQ.woff2') format('woff2');
-		font-weight: 400;
-		font-style: normal;
-		font-display: swap;
-	}
-	@font-face {
-		font-family: 'Space Mono';
-		src: url('https://fonts.gstatic.com/s/spacemono/v12/i7dMIFZifjKcF5UAWdDRaPpZYFKQHg.woff2') format('woff2');
-		font-weight: 700;
-		font-style: normal;
-		font-display: swap;
-	}
-
-	.weather-panel {
-		background-color: #211f1f;
-		width: 405px;
-		height: 100%;
-		padding: 24px;
-		box-sizing: border-box;
-		position: relative;
-		font-family: 'Space Mono', monospace;
-		color: #EAE9E6;
-	}
-
-	.loading,
-	.error {
-		font-size: 14px;
-		opacity: 0.7;
-	}
-
-	.error {
-		color: #ff6b6b;
-	}
-
-	.weather-header {
-		font-size: 16px;
-		margin-bottom: 8px;
-	}
-
-	.weather-main {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		margin-bottom: 8px;
-	}
-
-	.temperature {
-		display: flex;
-		align-items: baseline;
-	}
-
-	.temp-value {
-		font-size: 48px;
-		font-weight: bold;
-	}
-
-	.temp-celsius {
-		font-size: 24px;
-		font-weight: bold;
-	}
-
-	.weather-icon {
-		margin-top: 4px;
-		display: flex;
-		align-items: center;
-		color: #EAE9E6;
-	}
-
-	.weather-details {
-		font-size: 12px;
-		line-height: 1.5;
-	}
-
-	.weather-details p {
-		margin: 0;
-	}
-
-	.weather-details .label {
-		font-weight: bold;
-	}
-
-	.divider {
-		width: 357px;
-		height: 1px;
-		background-color: #EAE9E6;
-		margin: 24px 0 12px 0;
-	}
-
-	.hourly-section {
-		font-size: 12px;
-	}
-
-	.hourly-header {
-		margin-bottom: 8px;
-	}
-
-	.hourly-table {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.hourly-row {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 4px;
-		font-size: 16px;
-	}
-
-	.hourly-row-alt {
-		background-color: rgba(234, 233, 230, 0.05);
-	}
-
-	.hourly-time {
-		font-weight: bold;
-	}
-
-	.hourly-info {
-		text-align: right;
-		width: 200px;
-	}
-
-	.alert {
-		position: absolute;
-		bottom: 24px;
-		left: 24px;
-		right: 24px;
-		background-color: rgba(255, 0, 0, 0.2);
-		min-height: 90px;
-		display: flex;
-		align-items: center;
-		padding: 12px 16px;
-		overflow: hidden;
-		box-sizing: border-box;
-	}
-
-	.alert-icon {
-		color: rgba(234, 233, 230, 0.6);
-		margin-right: 12px;
-		flex-shrink: 0;
-	}
-
-	.alert-content {
-		font-size: 10px;
-		line-height: 1.4;
-	}
-
-	.alert-title {
-		font-weight: bold;
-		margin-bottom: 4px;
-	}
-
-	.alert-message {
-		opacity: 0.9;
-	}
-</style>

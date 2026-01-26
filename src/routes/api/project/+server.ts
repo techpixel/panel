@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { fetchProject } from '$lib/airtable';
+import { fetchProject } from '$lib/util/airtable';
 
 export async function GET() {
 	try {

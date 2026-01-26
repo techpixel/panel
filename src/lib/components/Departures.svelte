@@ -1,14 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { TrilliumResponse } from '$lib/util/trillium';
 
-	interface Departure {
-		line: string;
-		destination: string;
-		time: string;
-		status: string;
-	}
-
-	let departures: Departure[] = $state([]);
+	let data: TrilliumResponse | null = $state(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
@@ -16,9 +10,9 @@
 		try {
 			loading = true;
 			error = null;
-			// Placeholder - replace with actual transit API (MTA, GTFS, etc.)
-			// For now, returning empty to show "No upcoming departures"
-			departures = [];
+			const response = await fetch('/api/departures');
+			if (!response.ok) throw new Error('Failed to fetch departures');
+			data = await response.json();
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to fetch departures';
 		} finally {
@@ -26,110 +20,53 @@
 		}
 	}
 
+	function getArrivalStatus(arrivalTime: string): string {
+		const now = new Date();
+		const arrival = new Date(arrivalTime);
+		const diffMinutes = Math.floor((arrival.getTime() - now.getTime()) / (1000 * 60));
+
+		if (diffMinutes <= 0) {
+			return `Left`;
+		} else if (diffMinutes <= 4) {
+			return `Go now (${diffMinutes} min)`;
+		} else {
+			return `${diffMinutes} min`;
+		}
+	}
+
 	onMount(() => {
 		fetchDepartures();
-		const interval = setInterval(fetchDepartures, 60 * 1000);
+		const interval = setInterval(fetchDepartures, 30 * 1000);
 		return () => clearInterval(interval);
 	});
 </script>
 
-<div class="departures-panel">
-	<div class="header">
-		<img src="/6.svg" alt="Departures" width="24" height="24" />
-		<span class="header-text">NEXT DEPARTURES</span>
+<div class="bg-[#211f1f] w-full h-full flex flex-col p-9 text-[#eae9e6]">
+	<div class="flex items-center gap-3 mb-6">
+		<img src="/6.svg" alt="Departures" width="36" height="36" />
+		<h2 class="text-4xl font-medium">NEXT DEPARTURES</h2>
 	</div>
 
 	{#if loading}
-		<p class="main-text">Loading...</p>
-	{:else if departures.length === 0}
-		<p class="main-text">No upcoming departures</p>
-		<p class="sub-text">-</p>
-		<p class="sub-text">-</p>
+		<div class="text-6xl font-bold">Loading...</div>
+	{:else if error}
+		<div class="text-6xl font-bold text-red-400">{error}</div>
+	{:else if !data || data.data.length === 0}
+		<div class="text-6xl font-bold">No upcoming departures</div>
+		<div class="text-5xl font-bold mt-8">-</div>
+		<div class="text-5xl font-bold mt-12">-</div>
+		<div class="text-5xl font-bold mt-12">-</div>
+		<div class="text-5xl font-bold mt-12">-</div>
 	{:else}
-		{#each departures.slice(0, 3) as departure}
-			<div class="departure-row">
-				<span class="line">{departure.line}</span>
-				<span class="destination">{departure.destination}</span>
-				<span class="time">{departure.time}</span>
-			</div>
-		{/each}
+		<div class="flex flex-col">
+			{#each data.data.slice(0, 4) as departure, i}
+				<div class={`flex items-center gap-6 px-6 py-4 ${i % 2 === 0 ? 'bg-white/5' : ''}`}>
+					<div class={i === 0 ? 'text-[128px] font-bold flex-1' : 'text-6xl font-bold flex-1'}>
+						{getArrivalStatus(departure.arrivalTime)}
+					</div>
+					<div class={i === 0 ? 'text-6xl opacity-70' : 'text-4xl opacity-70'}>{departure.isPrediction ? 'LIVE' : 'SCHEDULED'}</div>
+				</div>
+			{/each}
+		</div>
 	{/if}
 </div>
-
-<style>
-	@font-face {
-		font-family: 'Space Mono';
-		src: url('https://fonts.gstatic.com/s/spacemono/v12/i7dPIFZifjKcF5UAWdDRYEF8RQ.woff2') format('woff2');
-		font-weight: 400;
-		font-style: normal;
-		font-display: swap;
-	}
-	@font-face {
-		font-family: 'Space Grotesk';
-		src: url('https://fonts.gstatic.com/s/spacegrotesk/v16/V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2') format('woff2');
-		font-weight: 700;
-		font-style: normal;
-		font-display: swap;
-	}
-
-	.departures-panel {
-		background-color: #211f1f;
-		width: 100%;
-		height: 100%;
-		padding: 24px;
-		box-sizing: border-box;
-		color: #eae9e6;
-	}
-
-	.header {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		margin-bottom: 16px;
-	}
-
-	.header-text {
-		font-family: 'Space Mono', monospace;
-		font-size: 16px;
-	}
-
-	.main-text {
-		font-family: 'Space Grotesk', sans-serif;
-		font-size: 32px;
-		font-weight: bold;
-		margin: 0 0 8px 0;
-	}
-
-	.sub-text {
-		font-family: 'Space Grotesk', sans-serif;
-		font-size: 16px;
-		font-weight: bold;
-		margin: 0;
-		line-height: 1.75;
-	}
-
-	.departure-row {
-		display: flex;
-		align-items: center;
-		gap: 16px;
-		font-family: 'Space Grotesk', sans-serif;
-		font-size: 16px;
-		font-weight: bold;
-		margin-bottom: 8px;
-	}
-
-	.line {
-		background: #eae9e6;
-		color: #211f1f;
-		padding: 2px 8px;
-		border-radius: 4px;
-	}
-
-	.destination {
-		flex: 1;
-	}
-
-	.time {
-		opacity: 0.7;
-	}
-</style>

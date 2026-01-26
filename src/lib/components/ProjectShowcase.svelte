@@ -37,125 +37,58 @@
 		return () => clearInterval(interval);
 	});
 
-	function truncateDescription(text: string, maxLength: number = 120): string {
+	function truncateDescription(text: string, maxLength: number = 200): string {
+		if (!text) return '';
+		if (text.length <= maxLength) return text;
+		return text.slice(0, maxLength).trim() + '...';
+	}
+
+	function truncateTitle(text: string, maxLength: number = 30): string {
 		if (!text) return '';
 		if (text.length <= maxLength) return text;
 		return text.slice(0, maxLength).trim() + '...';
 	}
 </script>
 
-<div class="project-panel">
+<div class="flex w-full h-full gap-3 text-[#eae9e6]">
 	{#if loading && !project}
-		<div class="loading">
-			<p>Loading project...</p>
+		<div class="flex items-center justify-center w-full">
+			<p class="text-2xl">Loading project...</p>
 		</div>
 	{:else if error && !project}
-		<div class="error">
-			<p>{error}</p>
+		<div class="flex items-center justify-center w-full">
+			<p class="text-2xl text-red-400">{error}</p>
 		</div>
 	{:else if project}
-		<div class="screenshot">
-			{#if project.Screenshot}
-				<img src={project.Screenshot} alt={project['YSWS–Name']} />
-			{/if}
+		<!-- Left side - Details -->
+		<div class="flex-1 flex flex-col gap-6 bg-[#211f1f] p-9">
+			<div>
+				<p class="text-3xl font-normal mb-6">RECENT PROJECTS</p>
+				<h2 class="text-8xl font-bold leading-[0.8]">{truncateTitle(project.Title)}</h2>
+			</div>
+
+			<div class="flex-1">
+				<p class="text-3xl leading-relaxed font-normal">
+					{truncateDescription(project.Description)}
+				</p>
+			</div>
+
+			<div class="flex items-end h-14">
+				<p class="text-3xl font-normal">
+					Created by @{project['GitHub Username']} for {project['YSWS–Name']}
+				</p>
+			</div>
 		</div>
-		<div class="details">
-			<p class="label">RECENT PROJECT</p>
-			<h2 class="title">{project.Title}</h2>
-			<p class="description">{truncateDescription(project.Description)}</p>
-			<p class="author">Created by @{project['GitHub Username']} for {project['YSWS–Name']}</p>
+
+		<!-- Right side - Screenshot -->
+		<div class="flex-1 overflow-hidden rounded-lg">
+			{#if project.Screenshot}
+				<img
+					src={project.Screenshot}
+					alt={project['YSWS–Name']}
+					class="w-full h-full object-cover"
+				/>
+			{/if}
 		</div>
 	{/if}
 </div>
-
-<style>
-	@font-face {
-		font-family: 'Space Mono';
-		src: url('https://fonts.gstatic.com/s/spacemono/v12/i7dPIFZifjKcF5UAWdDRYEF8RQ.woff2') format('woff2');
-		font-weight: 400;
-		font-style: normal;
-		font-display: swap;
-	}
-	@font-face {
-		font-family: 'Space Mono';
-		src: url('https://fonts.gstatic.com/s/spacemono/v12/i7dMIFZifjKcF5UAWdDRaPpZYFKQHg.woff2') format('woff2');
-		font-weight: 700;
-		font-style: normal;
-		font-display: swap;
-	}
-	@font-face {
-		font-family: 'Space Grotesk';
-		src: url('https://fonts.gstatic.com/s/spacegrotesk/v16/V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2') format('woff2');
-		font-weight: 700;
-		font-style: normal;
-		font-display: swap;
-	}
-
-	.project-panel {
-		background-color: #211f1f;
-		width: 100%;
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-		color: #eae9e6;
-	}
-
-	.loading,
-	.error {
-		padding: 24px;
-		font-family: 'Space Mono', monospace;
-		font-size: 14px;
-	}
-
-	.error {
-		color: #ff6b6b;
-	}
-
-	.screenshot {
-		width: 100%;
-		height: 255px;
-		overflow: hidden;
-		background-color: #1a1818;
-	}
-
-	.screenshot img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.details {
-		padding: 24px;
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.label {
-		font-family: 'Space Mono', monospace;
-		font-size: 16px;
-		margin: 0 0 4px 0;
-	}
-
-	.title {
-		font-family: 'Space Grotesk', sans-serif;
-		font-size: 32px;
-		font-weight: bold;
-		margin: 0 0 8px 0;
-	}
-
-	.description {
-		font-family: 'Space Mono', monospace;
-		font-size: 12px;
-		font-weight: bold;
-		margin: 0 0 8px 0;
-		line-height: 1.5;
-	}
-
-	.author {
-		font-family: 'Space Mono', monospace;
-		font-size: 12px;
-		font-weight: bold;
-		margin: 0;
-	}
-</style>
