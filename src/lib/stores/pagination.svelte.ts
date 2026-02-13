@@ -1,7 +1,7 @@
 class PaginationStore {
 	currentPage = $state(0);
 	direction = $state<1 | -1>(1);
-	totalPages = 4;
+	totalPages = 3;
 
 	goto(page: number) {
 		this.direction = page > this.currentPage ? 1 : -1;

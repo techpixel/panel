@@ -16,8 +16,6 @@
                 <Departures />
             {:else if pagination.currentPage === 2}
                 <ProjectShowcase />
-            {:else if pagination.currentPage === 3}
-                <Ad />
             {/if}
         </div>
     {/key}
