@@ -61,7 +61,7 @@
 </script>
 
 <div
-	class="w-[1280px] h-[800px] relative overflow-hidden"
+	class="w-[1280px] h-[800px] relative overflow-hidden bg-black"
 	ontouchstart={handleTouchStart}
 	ontouchend={handleTouchEnd}
 >
@@ -85,13 +85,13 @@
 
 	<!-- Bottom pagination overlay -->
 	<div class="absolute bottom-[36px] left-[36px] right-[36px] z-10">
-		<div class="bg-white/10 rounded-[16px] p-[16px] flex items-center justify-center">
+		<div class="liquid-glass rounded-[16px] p-[16px] flex items-center justify-center">
 			<div class="flex gap-2">
 				{#each Array(pagination.totalPages) as _, i}
 					<button
 						onclick={() => pagination.goto(i)}
-						class="w-3 h-3 rounded-full transition-opacity duration-200 cursor-pointer bg-white"
-						class:opacity-40={pagination.currentPage !== i}
+						class="w-3 h-3 rounded-full transition-all duration-200 cursor-pointer liquid-glass"
+						style={pagination.currentPage === i ? 'background: rgba(255,255,255,0.7)' : ''}
 						aria-label="Page {i + 1}"
 					></button>
 				{/each}

@@ -200,7 +200,7 @@
 
 				<!-- Right: Hourly Card -->
 				{#if weather.hourly.length > 0}
-					<div class="w-[480px] bg-white/10 rounded-[16px] p-[20px] flex flex-col gap-[16px]">
+					<div class="w-[480px] liquid-glass rounded-[16px] p-[20px] flex flex-col gap-[16px]">
 						<div class="font-serif text-white text-[24px] leading-none">Hourly</div>
 						<div class="flex flex-col">
 							{#each weather.hourly as hour, i}
