@@ -1,7 +1,9 @@
 import { env } from '$env/dynamic/private';
 import Airtable from 'airtable';
 
-const base = new Airtable({apiKey: env.AIRTABLE_API_KEY}).base('app3A5kJwYqxMLOgh');
+function getBase() {
+	return new Airtable({apiKey: env.AIRTABLE_API_KEY}).base('app3A5kJwYqxMLOgh');
+}
 
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 let cachedProject: Awaited<ReturnType<typeof fetchProjectFromAirtable>> | null = null;
@@ -19,7 +21,7 @@ export async function fetchProject() {
 }
 
 async function fetchProjectFromAirtable() {
-    const result = (await base('Approved Projects').select({
+    const result = (await getBase()('Approved Projects').select({
         maxRecords: 1,
         fields: [
             'First Name',
