@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { CloudSnow, Cloud, Sun, CloudRain, Wind } from 'lucide-svelte';
+	import { CloudSnow, Cloud, Sun, CloudRain, Wind, Droplet } from 'lucide-svelte';
 
 	interface WeatherAlert {
 		event: string;
@@ -12,6 +12,7 @@
 	interface HourlyForecast {
 		time: string;
 		temp: number;
+		tempC: number;
 		shortForecast: string;
 		iconName: string;
 	}
@@ -24,6 +25,7 @@
 		windDirection: string;
 		lastUpdated: string;
 		iconName: string;
+		shortForecast: string;
 		alerts: WeatherAlert[];
 		hourly: HourlyForecast[];
 	}
@@ -31,7 +33,7 @@
 	function getIconName(iconUrl: string | undefined): string {
 		if (!iconUrl) return 'cloud';
 
-		const descriptions = {
+		const descriptions: Record<string, string> = {
 			sunny: 'sun',
 			clear: 'sun',
 			cloud: 'cloud',
@@ -54,14 +56,6 @@
 		return 'cloud';
 	}
 
-	const iconComponents: Record<string, any> = {
-		sun: Sun,
-		cloud: Cloud,
-		'cloud-rain': CloudRain,
-		'cloud-snow': CloudSnow,
-		wind: Wind
-	};
-
 	let weather: WeatherData | null = $state(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
@@ -78,13 +72,12 @@
 			if (!pointsRes.ok) throw new Error('Failed to fetch location data');
 			const pointsData = await pointsRes.json();
 
-			const [forecastRes, hourlyRes, alertsRes] = await Promise.all([
-				fetch(pointsData.properties.forecast),
+			const [hourlyRes, alertsRes] = await Promise.all([
 				fetch(pointsData.properties.forecastHourly),
 				fetch(`https://api.weather.gov/alerts/active?point=${LAT},${LON}`)
 			]);
 
-			if (!forecastRes.ok || !hourlyRes.ok) throw new Error('Failed to fetch forecast');
+			if (!hourlyRes.ok) throw new Error('Failed to fetch forecast');
 
 			const hourlyData = await hourlyRes.json();
 			const alertsData = alertsRes.ok ? await alertsRes.json() : { features: [] };
@@ -101,11 +94,12 @@
 					end: f.properties.expires
 				})) || [];
 
-			const hourly: HourlyForecast[] = hourlyData.properties.periods.slice(0, 6).map((p: any) => {
+			const hourly: HourlyForecast[] = hourlyData.properties.periods.slice(1, 7).map((p: any) => {
 				const date = new Date(p.startTime);
 				return {
-					time: date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
+					time: date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }).toUpperCase().replace(' ', ''),
 					temp: p.temperature,
+					tempC: Math.round((p.temperature - 32) * (5 / 9)),
 					shortForecast: p.shortForecast,
 					iconName: getIconName(p.icon)
 				};
@@ -122,8 +116,9 @@
 					minute: '2-digit',
 					hour12: true,
 					timeZoneName: 'short'
-				}),
+				}).toLowerCase(),
 				iconName: getIconName(current.icon),
+				shortForecast: current.shortForecast,
 				alerts,
 				hourly
 			};
@@ -139,94 +134,100 @@
 		const interval = setInterval(fetchWeather, 10 * 60 * 1000);
 		return () => clearInterval(interval);
 	});
-
-	function formatAlertTime(isoString: string): string {
-		const date = new Date(isoString);
-		return date.toLocaleDateString('en-US', {
-			month: 'long',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-			timeZoneName: 'short'
-		});
-	}
-
-	function formatWeatherIcon(iconName: string): string {
-		const iconLabels: Record<string, string> = {
-			sun: 'SUNNY',
-			cloud: 'CLOUDY',
-			'cloud-rain': 'RAIN',
-			'cloud-snow': 'SNOW',
-			wind: 'WINDY'
-		};
-		return iconLabels[iconName] || 'CLOUDY';
-	}
 </script>
 
-<div class="flex w-full h-full gap-3 text-[#eae9e6]">
-	{#if loading && !weather}
-		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col">
-			<div class="text-sm opacity-70">Loading weather...</div>
-		</div>
-		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col">
-			<div class="text-sm opacity-70">Loading...</div>
-		</div>
-	{:else if error && !weather}
-		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col">
-			<div class="text-red-500">{error}</div>
-		</div>
-		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col"></div>
-	{:else if weather}
-		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col relative">
-			<div class="text-4xl font-medium mb-6">WEATHER</div>
-			<div class="flex items-center gap-4 mb-12">
-				<div class="flex-shrink-0">
-					{#if weather.iconName === 'sun'}
-						<Sun size={90} strokeWidth={1.5} />
-					{:else if weather.iconName === 'cloud-rain'}
-						<CloudRain size={90} strokeWidth={1.5} />
-					{:else if weather.iconName === 'cloud-snow'}
-						<CloudSnow size={90} strokeWidth={1.5} />
-					{:else if weather.iconName === 'wind'}
-						<Wind size={90} strokeWidth={1.5} />
-					{:else}
-						<Cloud size={90} strokeWidth={1.5} />
-					{/if}
-				</div>
-				<div class="flex items-baseline">
-					<span class="text-8xl font-bold leading-none">{weather.temp}°F</span>
-					<span class="text-6xl font-bold leading-none">({weather.tempC}°C)</span>
-				</div>
-			</div>
-			<div class="text-4xl leading-relaxed">
-				{#if weather.humidity !== null}
-					<p class="m-0"><span class="font-bold">Humidity</span> {weather.humidity}%</p>
-				{/if}
-				<p class="m-0"><span class="font-bold">Wind Speed</span> {weather.windDirection} {weather.windSpeed}</p>
-				<p class="m-0"><span class="font-bold">Last updated</span> {weather.lastUpdated}</p>
-			</div>
-			{#if weather.alerts.length > 0}
-				<div class="absolute bottom-9 left-9 right-9 bg-red-600/60 p-6 overflow-hidden">
-					<div class="font-bold text-2xl mb-1">{weather.alerts[0].event.toUpperCase()}</div>
-					<div class="text-2xl font-medium">
-						{weather.alerts[0].event} in effect from {formatAlertTime(weather.alerts[0].start)} until {formatAlertTime(
-							weather.alerts[0].end
-						)}
+<div class="w-full h-full relative" style="background: linear-gradient(180deg, #737373 0%, #1d6186 100%);">
+	<!-- Content -->
+	<div class="relative h-full p-[36px] pt-[92px] pb-[112px] flex flex-col justify-end">
+		{#if loading && !weather}
+			<div class="font-serif text-white text-[40px]">Loading weather...</div>
+		{:else if error && !weather}
+			<div class="font-serif text-red-400 text-[40px]">{error}</div>
+		{:else if weather}
+			<div class="flex gap-[48px] items-end">
+				<!-- Left: Weather Info -->
+				<div class="flex-1 flex flex-col gap-[36px] justify-end">
+					<!-- Weather Top -->
+					<div class="flex flex-col gap-[4px]">
+						<div class="font-serif text-[#d7d7d7] text-[40px] leading-tight">
+							Burlington, Vermont
+						</div>
+						<div class="flex gap-[16px] items-center">
+							<div class="w-[80px] h-[80px] text-white shrink-0">
+								{#if weather.iconName === 'sun'}
+									<Sun size={80} strokeWidth={1.5} />
+								{:else if weather.iconName === 'cloud-rain'}
+									<CloudRain size={80} strokeWidth={1.5} />
+								{:else if weather.iconName === 'cloud-snow'}
+									<CloudSnow size={80} strokeWidth={1.5} />
+								{:else if weather.iconName === 'wind'}
+									<Wind size={80} strokeWidth={1.5} />
+								{:else}
+									<Cloud size={80} strokeWidth={1.5} />
+								{/if}
+							</div>
+							<div class="font-serif text-white whitespace-nowrap leading-none">
+								<span class="text-[128px]">{weather.temp}°F</span><span class="text-[64px]">({weather.tempC}°C)</span>
+							</div>
+						</div>
+						<div class="font-serif text-white text-[40px] leading-tight">
+							{weather.shortForecast}
+						</div>
 					</div>
-				</div>
-			{/if}
-		</div>
-		<div class="flex-1 bg-[#211f1f] p-9 flex flex-col">
-			<div class="text-4xl font-medium mb-6">HOURLY</div>
-			<div class="flex flex-col">
-				{#each weather.hourly as hour, i (hour.time)}
-					<div class="flex items-center justify-between px-6 py-4 text-5xl overflow-hidden {i % 2 === 0 ? 'bg-white/5' : ''}">
-						<span class="font-bold">{hour.time.toUpperCase().replace(' ', '')}</span>
-						<span class="text-right font-medium">{hour.temp}° • {formatWeatherIcon(hour.iconName)}</span>
-					</div>
-				{/each}
-			</div>
-		</div>
-	{/if}
-</div>
 
+					<!-- Weather Detail -->
+					<div class="flex flex-col gap-[10px]">
+						{#if weather.humidity !== null}
+							<div class="flex gap-[4px] items-center">
+								<div class="text-[#eae9e6]">
+									<Droplet size={36} strokeWidth={1.5} />
+								</div>
+								<span class="font-serif text-[#eae9e6] text-[32px] leading-tight">{weather.humidity}%</span>
+							</div>
+						{/if}
+						<div class="flex gap-[4px] items-center">
+							<div class="text-[#eae9e6]">
+								<Wind size={36} strokeWidth={1.5} />
+							</div>
+							<span class="font-serif text-[#eae9e6] text-[32px] leading-tight">{weather.windDirection} {weather.windSpeed}</span>
+						</div>
+					</div>
+
+					<div class="font-serif text-[#ccc] text-[32px] leading-tight">
+						Last updated {weather.lastUpdated}
+					</div>
+				</div>
+
+				<!-- Right: Hourly Card -->
+				{#if weather.hourly.length > 0}
+					<div class="w-[480px] bg-white/10 rounded-[16px] p-[20px] flex flex-col gap-[16px]">
+						<div class="font-serif text-white text-[24px] leading-none">Hourly</div>
+						<div class="flex flex-col">
+							{#each weather.hourly as hour, i}
+								<div class="flex items-center justify-between py-[12px] px-[16px] rounded-[8px] {i % 2 === 0 ? 'bg-white/20' : ''}">
+									<span class="font-semibold text-white text-[36px]">{hour.time}</span>
+									<div class="flex items-center gap-[12px] text-white">
+										<span class="font-serif text-[36px]">{hour.temp}°F ({hour.tempC}°C)</span>
+										<div class="w-[28px] h-[28px]">
+											{#if hour.iconName === 'sun'}
+												<Sun size={28} strokeWidth={1.5} />
+											{:else if hour.iconName === 'cloud-rain'}
+												<CloudRain size={28} strokeWidth={1.5} />
+											{:else if hour.iconName === 'cloud-snow'}
+												<CloudSnow size={28} strokeWidth={1.5} />
+											{:else if hour.iconName === 'wind'}
+												<Wind size={28} strokeWidth={1.5} />
+											{:else}
+												<Cloud size={28} strokeWidth={1.5} />
+											{/if}
+										</div>
+									</div>
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/if}
+			</div>
+		{/if}
+	</div>
+</div>

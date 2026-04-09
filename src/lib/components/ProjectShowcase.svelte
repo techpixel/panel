@@ -37,58 +37,50 @@
 		return () => clearInterval(interval);
 	});
 
-	function truncateDescription(text: string, maxLength: number = 200): string {
-		if (!text) return '';
-		if (text.length <= maxLength) return text;
-		return text.slice(0, maxLength).trim() + '...';
-	}
-
-	function truncateTitle(text: string, maxLength: number = 30): string {
+	function truncateDescription(text: string, maxLength: number = 100): string {
 		if (!text) return '';
 		if (text.length <= maxLength) return text;
 		return text.slice(0, maxLength).trim() + '...';
 	}
 </script>
 
-<div class="flex w-full h-full gap-3 text-[#eae9e6]">
-	{#if loading && !project}
-		<div class="flex items-center justify-center w-full">
-			<p class="text-2xl">Loading project...</p>
-		</div>
-	{:else if error && !project}
-		<div class="flex items-center justify-center w-full">
-			<p class="text-2xl text-red-400">{error}</p>
-		</div>
-	{:else if project}
-		<!-- Left side - Details -->
-		<div class="flex-1 flex flex-col gap-6 bg-[#211f1f] p-9">
-			<div>
-				<p class="text-3xl font-normal mb-6">RECENT PROJECTS</p>
-				<h2 class="text-8xl font-bold leading-[0.8]">{truncateTitle(project.Title)}</h2>
-			</div>
+<div class="w-full h-full relative">
+	<!-- Background image -->
+	<div class="absolute inset-0">
+		{#if project?.Screenshot}
+			<img
+				alt=""
+				class="absolute inset-0 w-full h-full object-cover"
+				src={project.Screenshot}
+			/>
+		{/if}
+		<div class="absolute inset-0" style="background: linear-gradient(16deg, rgb(0, 0, 0) 23%, rgba(0, 0, 0, 0) 103%);"></div>
+	</div>
 
-			<div class="flex-1">
-				<p class="text-3xl leading-relaxed font-normal">
-					{truncateDescription(project.Description)}
-				</p>
-			</div>
+	<!-- Content -->
+	<div class="relative h-full p-[36px] pt-[92px] pb-[112px] flex flex-col justify-end">
+		{#if loading && !project}
+			<div class="font-serif text-white text-[40px]">Loading project...</div>
+		{:else if error && !project}
+			<div class="font-serif text-red-400 text-[40px]">{error}</div>
+		{:else if project}
+			<div class="flex flex-col gap-[36px]">
+				<div class="flex flex-col gap-[4px]">
+					<div class="font-serif text-[#d7d7d7] text-[40px] leading-tight">
+						Recent Projects
+					</div>
+					<div class="font-serif text-white text-[128px] leading-none">
+						{project.Title}
+					</div>
+					<div class="font-serif text-white text-[40px] leading-tight mt-[8px]">
+						{truncateDescription(project.Description)}
+					</div>
+				</div>
 
-			<div class="flex items-end h-14">
-				<p class="text-3xl font-normal">
+				<div class="font-serif text-[#ccc] text-[32px] leading-tight">
 					Created by @{project['GitHub Username']} for {project['YSWS–Name']}
-				</p>
+				</div>
 			</div>
-		</div>
-
-		<!-- Right side - Screenshot -->
-		<div class="flex-1 overflow-hidden rounded-lg">
-			{#if project.Screenshot}
-				<img
-					src={project.Screenshot}
-					alt={project['YSWS–Name']}
-					class="w-full h-full object-cover"
-				/>
-			{/if}
-		</div>
-	{/if}
+		{/if}
+	</div>
 </div>

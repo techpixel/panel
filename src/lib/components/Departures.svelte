@@ -41,32 +41,50 @@
 	});
 </script>
 
-<div class="bg-[#211f1f] w-full h-full flex flex-col p-9 text-[#eae9e6]">
-	<div class="flex items-center gap-3 mb-6">
-		<img src="/6.svg" alt="Departures" width="36" height="36" />
-		<h2 class="text-4xl font-medium">NEXT DEPARTURES</h2>
-	</div>
-
-	{#if loading}
-		<div class="text-6xl font-bold">Loading...</div>
-	{:else if error}
-		<div class="text-6xl font-bold text-red-400">{error}</div>
-	{:else if !data || data.data.length === 0}
-		<div class="text-6xl font-bold">No upcoming departures</div>
-		<div class="text-5xl font-bold mt-8">-</div>
-		<div class="text-5xl font-bold mt-12">-</div>
-		<div class="text-5xl font-bold mt-12">-</div>
-		<div class="text-5xl font-bold mt-12">-</div>
-	{:else}
-		<div class="flex flex-col">
-			{#each data.data.slice(0, 4) as departure, i}
-				<div class={`flex items-center gap-6 px-6 py-4 ${i % 2 === 0 ? 'bg-white/5' : ''}`}>
-					<div class={i === 0 ? 'text-[128px] font-bold flex-1' : 'text-6xl font-bold flex-1'}>
-						{getArrivalStatus(departure.arrivalTime)}
-					</div>
-					<div class={i === 0 ? 'text-6xl opacity-70' : 'text-4xl opacity-70'}>{departure.isPrediction ? 'LIVE' : 'SCHEDULED'}</div>
+<div class="w-full h-full relative" style="background: linear-gradient(180deg, rgba(45, 150, 211, 0.3) 0%, rgb(0, 0, 0) 100%), rgba(0, 0, 0, 0.7);">
+	<!-- Content -->
+	<div class="relative h-full p-[36px] pt-[92px] pb-[112px] flex flex-col justify-end">
+		<div class="flex flex-col gap-[36px]">
+			<!-- Header -->
+			<div class="flex gap-[16px] items-center">
+				<img src="/6.svg" alt="" width="36" height="36" />
+				<div class="font-serif text-[#d7d7d7] text-[40px] leading-tight">
+					Next Departures
 				</div>
-			{/each}
+			</div>
+
+			<!-- Departures List -->
+			<div class="flex flex-col gap-[12px] font-serif leading-none">
+				{#if loading && !data}
+					<div class="text-[128px] text-[#eae9e6]">Loading...</div>
+				{:else if error && !data}
+					<div class="text-[128px] text-red-400">{error}</div>
+				{:else if !data || data.data.length === 0}
+					<div class="text-[128px] text-[#eae9e6]">No upcoming departures</div>
+					<div class="text-[64px] text-[#888]">-</div>
+					<div class="text-[64px] text-[#888]">-</div>
+					<div class="text-[64px] text-[#888]">-</div>
+					<div class="text-[64px] text-[#888]">-</div>
+				{:else}
+					{#each data.data.slice(0, 5) as departure, i}
+						{#if i === 0}
+							<div class="flex items-baseline gap-[24px]">
+								<span class="text-[128px] text-[#eae9e6]">{getArrivalStatus(departure.arrivalTime)}</span>
+								{#if departure.isPrediction}
+									<span class="font-serif text-[64px] text-[#888]">live</span>
+								{/if}
+							</div>
+						{:else}
+							<div class="flex items-baseline gap-[16px]">
+								<span class="text-[64px] text-[#888]">{getArrivalStatus(departure.arrivalTime)}</span>
+								{#if departure.isPrediction}
+									<span class="font-serif text-[24px] text-[#888]">live</span>
+								{/if}
+							</div>
+						{/if}
+					{/each}
+				{/if}
+			</div>
 		</div>
-	{/if}
+	</div>
 </div>

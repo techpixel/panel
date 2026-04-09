@@ -36,10 +36,8 @@
 
 		if (Math.abs(diff) > threshold) {
 			if (diff > 0) {
-				// Swiped left, go to next page
 				pagination.next();
 			} else {
-				// Swiped right, go to previous page
 				pagination.prev();
 			}
 		}
@@ -50,11 +48,11 @@
 	onMount(() => {
 		updateDateTime();
 		const dateInterval = setInterval(updateDateTime, 1000);
-		
+
 		const pageInterval = setInterval(() => {
 			pagination.next();
 		}, PAGE_INTERVAL_MS);
-		
+
 		return () => {
 			clearInterval(dateInterval);
 			clearInterval(pageInterval);
@@ -62,37 +60,42 @@
 	});
 </script>
 
-<div class="bg-[#141011] w-[1280px] h-[800px] p-6 flex flex-col">
-	<!-- Top Bar -->
-	<div class="flex items-start justify-between pb-6 w-[1232px]">
-		<div class="h-10 w-28">
-			<img alt="Hack Club" class="h-full w-auto" src="/flag.svg" />
-		</div>
-		<div class="font-semibold text-[#eae9e6] text-4xl text-right tracking-tight">
-			{currentTime} • {currentDate}
-		</div>
-	</div>
-
-	<!-- Content -->
-	<div
-		class="w-[1232px] h-[652px]"
-		ontouchstart={handleTouchStart}
-		ontouchend={handleTouchEnd}
-	>
+<div
+	class="w-[1280px] h-[800px] relative overflow-hidden"
+	ontouchstart={handleTouchStart}
+	ontouchend={handleTouchEnd}
+>
+	<!-- Page content fills entire area with its own background -->
+	<div class="absolute inset-0">
 		{@render children()}
 	</div>
 
-	<!-- Bottom Bar -->
-	<div class="flex items-center justify-center pt-6 w-[1232px]">
-		<div class="flex gap-2">
-			{#each Array(pagination.totalPages) as _, i}
-				<button
-					onclick={() => pagination.goto(i)}
-					class="w-3 h-3 rounded-full transition-opacity duration-200 cursor-pointer bg-[#eae9e6]"
-					class:opacity-50={pagination.currentPage !== i}
-					aria-label="Page {i + 1}"
-				></button>
-			{/each}
+	<!-- Top Bar overlay -->
+	<div class="absolute top-[36px] left-[36px] right-[36px] z-10 flex justify-between items-start">
+		<div class="h-[40px] w-[112px]">
+			<img alt="Hack Club" class="h-full w-auto" src="/flag.svg" />
+		</div>
+		<div class="flex gap-3 items-center h-[40px]">
+			<div class="font-semibold text-white text-[36px] text-right leading-[40px] tracking-tight">
+				{currentTime} &bull; {currentDate}
+			</div>
+			<img src="/settings.svg" alt="Settings" class="w-[36px] h-[36px] p-[4px]" />
+		</div>
+	</div>
+
+	<!-- Bottom pagination overlay -->
+	<div class="absolute bottom-[36px] left-[36px] right-[36px] z-10">
+		<div class="bg-white/10 rounded-[16px] p-[16px] flex items-center justify-center">
+			<div class="flex gap-2">
+				{#each Array(pagination.totalPages) as _, i}
+					<button
+						onclick={() => pagination.goto(i)}
+						class="w-3 h-3 rounded-full transition-opacity duration-200 cursor-pointer bg-white"
+						class:opacity-40={pagination.currentPage !== i}
+						aria-label="Page {i + 1}"
+					></button>
+				{/each}
+			</div>
 		</div>
 	</div>
 </div>

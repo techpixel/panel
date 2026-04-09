@@ -1,5 +1,13 @@
 @import 'tailwindcss';
 
+@font-face {
+  font-family: 'Zarathustra';
+  src: url('/zarathustra-v01.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 html, body {
   font-family: 'Phantom Sans', sans-serif;
   overflow: hidden;
@@ -8,6 +16,10 @@ html, body {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+}
+
+.font-serif {
+  font-family: 'Zarathustra', serif;
 }
 
 @font-face {

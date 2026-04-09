@@ -1,6 +1,6 @@
 <script>
     import { fly } from 'svelte/transition';
-    import Ad from "$lib/components/Ad.svelte";
+    import DateTime from "$lib/components/DateTime.svelte";
     import Departures from "$lib/components/Departures.svelte";
     import ProjectShowcase from "$lib/components/ProjectShowcase.svelte";
     import Weather from "$lib/components/Weather.svelte";
@@ -9,13 +9,15 @@
 
 <div class="w-full h-full overflow-hidden relative">
     {#key pagination.currentPage}
-        <div in:fly={{ duration: 600, x: 1232 * pagination.direction }} out:fly={{ duration: 600, x: -1232 * pagination.direction }} class="absolute inset-0">
+        <div in:fly={{ duration: 600, x: 1280 * pagination.direction }} out:fly={{ duration: 600, x: -1280 * pagination.direction }} class="absolute inset-0">
             {#if pagination.currentPage === 0}
-                <Weather />
+                <DateTime />
             {:else if pagination.currentPage === 1}
-                <Departures />
+                <Weather />
             {:else if pagination.currentPage === 2}
                 <ProjectShowcase />
+            {:else if pagination.currentPage === 3}
+                <Departures />
             {/if}
         </div>
     {/key}
