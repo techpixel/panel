@@ -178,14 +178,14 @@
 					<!-- Weather Detail -->
 					<div class="flex flex-col gap-[10px]">
 						{#if weather.humidity !== null}
-							<div class="flex gap-[4px] items-center">
+							<div class="flex gap-[10px] items-center">
 								<div class="text-[#eae9e6]">
 									<Droplet size={36} strokeWidth={1.5} />
 								</div>
 								<span class="font-serif text-[#eae9e6] text-[32px] leading-tight">{weather.humidity}%</span>
 							</div>
 						{/if}
-						<div class="flex gap-[4px] items-center">
+						<div class="flex gap-[10px] items-center">
 							<div class="text-[#eae9e6]">
 								<Wind size={36} strokeWidth={1.5} />
 							</div>

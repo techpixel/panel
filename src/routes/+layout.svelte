@@ -79,7 +79,7 @@
 			<div class="font-semibold text-white text-[36px] text-right leading-[40px] tracking-tight">
 				{currentTime} &bull; {currentDate}
 			</div>
-			<img src="/settings.svg" alt="Settings" class="w-[36px] h-[36px] p-[4px]" />
+			<!-- <img src="/settings.svg" alt="Settings" class="w-[36px] h-[36px] p-[4px]" /> -->
 		</div>
 	</div>
 

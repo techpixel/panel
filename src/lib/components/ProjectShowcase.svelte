@@ -69,7 +69,7 @@
 					<div class="font-serif text-[#d7d7d7] text-[40px] leading-tight">
 						Recent Projects
 					</div>
-					<div class="font-serif text-white text-[128px] leading-none">
+					<div class="font-serif text-white text-[128px] leading-none mb-[12px]">
 						{project.Title}
 					</div>
 					<div class="font-serif text-white text-[40px] leading-tight mt-[8px]">
