@@ -1,8 +1,7 @@
-import { AIRTABLE_API_KEY } from '$env/static/private';
-// import 'dotenv/config'
+import { env } from '$env/dynamic/private';
 import Airtable from 'airtable';
 
-const base = new Airtable({apiKey: AIRTABLE_API_KEY}).base('app3A5kJwYqxMLOgh');
+const base = new Airtable({apiKey: env.AIRTABLE_API_KEY}).base('app3A5kJwYqxMLOgh');
 
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 let cachedProject: Awaited<ReturnType<typeof fetchProjectFromAirtable>> | null = null;
