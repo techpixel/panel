@@ -183,7 +183,7 @@
 		<span class="leading-none whitespace-nowrap">{timeLabel}</span>
 	</header>
 
-	<div class="relative w-full flex-1 overflow-hidden">
+	<div class="relative w-full flex-1 overflow-visible">
 		<div
 			class="screen-strip flex h-full gap-[36px]"
 			class:dragging={isDragging}
