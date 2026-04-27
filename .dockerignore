@@ -1,8 +1,8 @@
-**/node_modules
-**/.svelte-kit
-**/build
-**/dist
-**/.output
+node_modules
+.svelte-kit
+build
+dist
+.output
 
 .git
 .gitignore
@@ -10,9 +10,9 @@
 .claude
 .DS_Store
 
-**/.env
-**/.env.*
-!**/.env.example
+.env
+.env.*
+!.env.example
 
 Dockerfile
 .dockerignore
