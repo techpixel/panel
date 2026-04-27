@@ -1,31 +1,13 @@
 {
-	"name": "panel",
+	"name": "panel-monorepo",
 	"private": true,
 	"version": "0.0.1",
-	"type": "module",
+	"description": "Panel dashboard + widget plugin packages.",
 	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"dev": "pnpm --filter @panel/app dev",
+		"build": "pnpm --filter @panel/app build",
+		"preview": "pnpm --filter @panel/app preview",
+		"check": "pnpm -r run check"
 	},
-	"devDependencies": {
-		"@sveltejs/adapter-auto": "^7.0.0",
-		"@sveltejs/kit": "^2.49.1",
-		"@sveltejs/vite-plugin-svelte": "^6.2.1",
-		"@tailwindcss/vite": "^4.1.17",
-		"svelte": "^5.45.6",
-		"svelte-check": "^4.3.4",
-		"tailwindcss": "^4.1.17",
-		"typescript": "^5.9.3",
-		"vite": "^7.2.6"
-	},
-	"dependencies": {
-		"@sveltejs/adapter-node": "^5.5.2",
-		"airtable": "^0.12.2",
-		"dotenv": "^17.2.3",
-		"lucide-svelte": "^0.563.0"
-	}
+	"packageManager": "pnpm@10.19.0"
 }

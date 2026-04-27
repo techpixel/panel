@@ -1,0 +1,29 @@
+{
+	"name": "@panel/widget-status",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Availability indicator widget for Panel.",
+	"type": "module",
+	"main": "./src/index.ts",
+	"svelte": "./src/index.ts",
+	"types": "./src/index.ts",
+	"exports": {
+		".": {
+			"svelte": "./src/index.ts",
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		},
+		"./Status.svelte": "./src/Status.svelte",
+		"./package.json": "./package.json"
+	},
+	"keywords": ["panel-plugin", "panel-widget"],
+	"panel": {
+		"type": "widget"
+	},
+	"dependencies": {
+		"@panel/plugin-sdk": "workspace:*"
+	},
+	"peerDependencies": {
+		"svelte": ">=5"
+	}
+}
