@@ -1,25 +1,27 @@
-FROM oven/bun:1 AS builder
+FROM node:22-alpine AS base
+RUN corepack enable
+WORKDIR /repo
 
-WORKDIR /app
+FROM base AS deps
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/panel/package.json ./apps/panel/
+RUN pnpm install --frozen-lockfile
 
-COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
-
+FROM base AS builder
+COPY --from=deps /repo/node_modules ./node_modules
+COPY --from=deps /repo/apps/panel/node_modules ./apps/panel/node_modules
 COPY . .
-RUN bunx svelte-kit sync
-RUN bun run build
+RUN pnpm --filter @panel/app build
+RUN pnpm --filter @panel/app deploy --prod /prod/panel
 
-FROM oven/bun:1-slim
-
+FROM node:22-alpine AS runner
 WORKDIR /app
-
-COPY --from=builder /app/build ./build
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
-
 ENV NODE_ENV=production
 ENV PORT=3000
 
-EXPOSE 3000
+COPY --from=builder /repo/apps/panel/build ./build
+COPY --from=builder /prod/panel/node_modules ./node_modules
+COPY --from=builder /repo/apps/panel/package.json ./
 
-CMD ["bun", "./build/index.js"]
+EXPOSE 3000
+CMD ["node", "build/index.js"]
