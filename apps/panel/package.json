@@ -16,22 +16,12 @@
 		"@sveltejs/adapter-auto": "^7.0.0",
 		"@sveltejs/kit": "^2.49.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
-		"@tailwindcss/vite": "^4.1.17",
 		"svelte": "^5.45.6",
 		"svelte-check": "^4.3.4",
-		"tailwindcss": "^4.1.17",
 		"typescript": "^5.9.3",
 		"vite": "^7.2.6"
 	},
 	"dependencies": {
-		"@panel/plugin-sdk": "workspace:*",
-		"@panel/runtime": "workspace:*",
-		"@panel/widget-clock": "workspace:*",
-		"@panel/widget-news": "workspace:*",
-		"@panel/widget-placeholder": "workspace:*",
-		"@panel/widget-status": "workspace:*",
-		"@panel/widget-weather": "workspace:*",
-		"@sveltejs/adapter-node": "^5.5.2",
-		"lucide-svelte": "^0.563.0"
+		"@sveltejs/adapter-node": "^5.5.2"
 	}
 }

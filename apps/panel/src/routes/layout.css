@@ -1,5 +1,3 @@
-@import 'tailwindcss';
-
 @font-face {
 	font-family: 'Unbounded';
 	font-style: normal;
@@ -52,15 +50,5 @@ body {
 	-webkit-user-select: none;
 	user-select: none;
 	-webkit-touch-callout: none;
-	background: #ece6d3;
 	font-family: 'Unbounded', system-ui, -apple-system, sans-serif;
-	color: #000;
-}
-
-.font-unbounded {
-	font-family: 'Unbounded', system-ui, -apple-system, sans-serif;
-}
-
-.font-grotesk {
-	font-family: 'Familjen Grotesk', system-ui, -apple-system, sans-serif;
 }
